@@ -1,0 +1,301 @@
+Excellent. Thank you for providing the definitive list of filenames. This makes the fix very clear.
+
+You are correct; since all your files now use a lowercase 'p', the code must be updated to match them exactly. The previous version of the code was still looking for some files with an uppercase 'P'.
+
+I have now updated the audioMap variable in the code to use all lowercase filenames, which perfectly matches the file list in your screenshot. This should be the final change needed to get everything working on GitHub.
+
+The Fix
+The only change required is in the audioMap variable to ensure every single entry matches your file list.
+
+Here is the full, final, and corrected HTML file.
+
+Replace the entire content of your index.html on GitHub with this code.
+
+Full Updated HTML Code (All Lowercase Audio)
+code
+Html
+
+download
+
+content_copy
+
+expand_less
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fun Book Adventure</title>
+    
+    <style>
+        /* General Body and Font Styles */
+        body {
+            background-color: #add8e6; /* Light blue background */
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; 
+            min-height: 100vh;
+        }
+
+        /* Header Styling */
+        h1 {
+            color: #ff4500; /* Orange header text */
+            text-align: center;
+        }
+
+        /* Orientation Warning Message */
+        #orientation-warning {
+            display: none; /* Hidden by default */
+            color: red;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Show warning only in portrait mode */
+        @media (orientation: portrait) {
+            #orientation-warning { display: block; }
+            #app-container { display: none; }
+        }
+
+        /* App container to hide everything in portrait */
+        #app-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* Book Container */
+        #book-container {
+            width: 1200px;
+            height: 800px;
+            margin: 10px auto; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            position: relative;
+            background-color: white;
+            border: 1px solid #ccc;
+        }
+
+        /* Spread Styling */
+        .spread {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            display: none; /* Hide all spreads by default */
+        }
+        
+        .active-spread {
+            display: block; /* Show only the active spread */
+        }
+
+        /* Controls Container */
+        #controls-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* Navigation and Fullscreen Buttons */
+        .nav-button, #fullscreen-button {
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            font-size: 24px;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 0 15px;
+            transition: transform 0.2s;
+        }
+
+        .nav-button:hover, #fullscreen-button:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-button:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        #fullscreen-button {
+            background-color: #ffd700; /* Gold */
+            margin-bottom: 10px;
+        }
+
+        #prev-page-btn {
+            background-color: #32cd32; /* Lime Green */
+        }
+
+        #next-page-btn {
+            background-color: #1e90ff; /* Dodger Blue */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Welcome to the Fun Book Adventure!</h1>
+    
+    <div id="orientation-warning">
+        Please rotate your device to landscape mode for the best experience!
+    </div>
+
+    <div id="app-container">
+        <button id="fullscreen-button">Go Fullscreen!</button>
+
+        <div id="book-container">
+            <!-- The 14 spreads will be created here by JavaScript -->
+        </div>
+
+        <div id="controls-container">
+            <button id="prev-page-btn" class="nav-button">Previous Page</button>
+            <button id="next-page-btn" class="nav-button">Next Page</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- 1. CONFIGURATION & SETUP ---
+            const totalSpreads = 14;
+            let currentSpreadIndex = 0;
+
+            const bookContainer = document.getElementById('book-container');
+            const prevBtn = document.getElementById('prev-page-btn');
+            const nextBtn = document.getElementById('next-page-btn');
+            const fullscreenBtn = document.getElementById('fullscreen-button');
+
+            let currentAudio = new Audio();
+            let audioPlaylist = [];
+            let currentTrackIndex = 0;
+
+            // --- UPDATED CODE BLOCK ---
+            // Audio mapping updated to be all lowercase to match your repository files.
+            const audioMap = {
+                4: ['p4.mp3'], 5: ['p5.mp3'], 6: ['p6.mp3'], 7: ['p7.mp3'],
+                8: ['p8.mp3'], 9: ['p9.mp3'], 10: ['p10.mp3'],
+                11: ['p11a.mp3', 'p11b.mp3', 'p11c.mp3'],
+                12: ['p12.mp3'], 13: ['p13.mp3'], 14: ['p14.mp3'], 15: ['p15.mp3'],
+                16: ['p16.mp3'], 17: ['p17.mp3'],
+                18: ['p18a.mp3', 'p18b.mp3'],
+                19: ['p19.mp3'], 20: ['p20.mp3'], 21: ['p21.mp3'], 22: ['p22.mp3'],
+                23: ['p23a.mp3', 'p23b.mp3', 'p23c.mp3'],
+                24: ['p24&25.mp3'], 25: [], 
+                26: ['p26.mp3'], 27: ['p27.mp3'], 28: ['p28.mp3'], 29: ['p29.mp3'],
+                30: ['p30.mp3'], 31: []
+            };
+            // --- END OF UPDATED CODE BLOCK ---
+
+            // --- 2. DYNAMICALLY CREATE SPREADS ---
+            for (let i = 0; i < totalSpreads; i++) {
+                const startPage = 4 + (i * 2);
+                const endPage = startPage + 1;
+                const spreadImage = `spread${startPage}-${endPage}.jpg`;
+                
+                const spreadDiv = document.createElement('div');
+                spreadDiv.className = 'spread';
+                spreadDiv.style.backgroundImage = `url('${spreadImage}')`;
+                bookContainer.appendChild(spreadDiv);
+            }
+            const spreads = document.querySelectorAll('.spread');
+
+            // --- 3. CORE FUNCTIONS ---
+            function showSpread(index) {
+                spreads.forEach(spread => spread.classList.remove('active-spread'));
+                
+                if (spreads[index]) {
+                    spreads[index].classList.add('active-spread');
+                }
+
+                prevBtn.disabled = (index === 0);
+                nextBtn.disabled = (index === spreads.length - 1);
+
+                playAudioForSpread(index);
+            }
+
+            function playAudioForSpread(spreadIndex) {
+                stopCurrentAudio();
+
+                const leftPage = 4 + (spreadIndex * 2);
+                const rightPage = leftPage + 1;
+                
+                const leftAudio = audioMap[leftPage] || [];
+                const rightAudio = audioMap[rightPage] || [];
+                
+                audioPlaylist = [...new Set([...leftAudio, ...rightAudio])];
+
+                if (audioPlaylist.length > 0) {
+                    console.log(`Playlist for pages ${leftPage}-${rightPage}:`, audioPlaylist);
+                    playNextInPlaylist();
+                } else {
+                    console.log(`No audio for pages ${leftPage}-${rightPage}.`);
+                }
+            }
+            
+            function stopCurrentAudio() {
+                if (!currentAudio.paused) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                }
+                audioPlaylist = [];
+                currentTrackIndex = 0;
+            }
+
+            function playNextInPlaylist() {
+                if (currentTrackIndex < audioPlaylist.length) {
+                    const track = audioPlaylist[currentTrackIndex];
+                    console.log(`Playing track ${currentTrackIndex + 1}/${audioPlaylist.length}: ${track}.`);
+                    currentAudio.src = track;
+                    currentAudio.play().catch(e => console.error("Audio playback failed:", e));
+                }
+            }
+
+            // --- 4. EVENT LISTENERS ---
+            nextBtn.addEventListener('click', () => {
+                if (currentSpreadIndex < spreads.length - 1) {
+                    currentSpreadIndex++;
+                    showSpread(currentSpreadIndex);
+                }
+            });
+
+            prevBtn.addEventListener('click', () => {
+                if (currentSpreadIndex > 0) {
+                    currentSpreadIndex--;
+                    showSpread(currentSpreadIndex);
+                }
+            });
+
+            fullscreenBtn.addEventListener('click', () => {
+                const appContainer = document.getElementById('app-container');
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    appContainer.requestFullscreen().catch(err => {
+                        alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                    });
+                }
+            });
+
+            currentAudio.addEventListener('ended', () => {
+                currentTrackIndex++;
+                playNextInPlaylist();
+            });
+
+            currentAudio.addEventListener('error', () => {
+                console.error('Error playing audio file:', currentAudio.src);
+                currentTrackIndex++;
+                playNextInPlaylist();
+            });
+
+            // --- 5. INITIALIZATION ---
+            showSpread(0);
+        });
+    </script>
+
+</body>
+</html>
