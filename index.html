@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fun Book Adventure</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="turn.js"></script>
+
+    <style>
+        /* General Body and Font Styles */
+        body {
+            background-color: #add8e6; /* Light blue background */
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Header Styling */
+        h1 {
+            color: #ff4500; /* Orange header text */
+            text-align: center;
+        }
+
+        /* Orientation Warning Message */
+        #orientation-warning {
+            display: none; /* Hidden by default */
+            color: red;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Show warning only in portrait mode */
+        @media (orientation: portrait) {
+            #orientation-warning {
+                display: block;
+            }
+            #book-container, #controls-container, #fullscreen-button {
+                display: none; /* Hide book content in portrait */
+            }
+        }
+        
+        /* Book Container */
+        #book-container {
+            width: 1200px;
+            height: 800px;
+            margin: 20px auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        #book {
+            width: 1200px;
+            height: 800px;
+        }
+
+        #book .turn-page {
+            background-color: #fff;
+            background-size: 200% 100%;
+        }
+
+        /* Page specific styles for background positioning */
+        #book .p-left {
+            background-position: 0% 0%;
+        }
+
+        #book .p-right {
+            background-position: 100% 0%;
+        }
+
+        /* Controls Container */
+        #controls-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Navigation and Fullscreen Buttons */
+        .nav-button, #fullscreen-button {
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            font-size: 24px;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 0 15px;
+            transition: transform 0.2s;
+        }
+
+        .nav-button:hover, #fullscreen-button:hover {
+            transform: scale(1.05);
+        }
+        
+        #fullscreen-button {
+            background-color: #ffd700; /* Gold */
+            margin-bottom: 20px;
+        }
+
+        #prev-page-btn {
+            background-color: #32cd32; /* Lime Green */
+        }
+
+        #next-page-btn {
+            background-color: #1e90ff; /* Dodger Blue */
+        }
+    </style>
+</head>
+<body>
+
+    <h1 id="main-header">Welcome to the Fun Book Adventure!</h1>
+    
+    <div id="orientation-warning">
+        Please rotate your device to landscape mode for the best experience!
+    </div>
+
+    <button id="fullscreen-button">Go Fullscreen!</button>
+
+    <div id="book-container">
+        <div id="book"></div>
+    </div>
+
+    <div id="controls-container">
+        <button id="prev-page-btn" class="nav-button">← Go Back</button>
+        <button id="next-page-btn" class="nav-button">Go Forward →</button>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // --- 1. CONFIGURATION & SETUP ---
+            const totalSpreads = 14;
+            const bookElement = $('#book');
+            let currentAudio = new Audio();
+            let audioPlaylist = [];
+            let currentTrackIndex = 0;
+
+            // Audio mapping from book page number to MP3 files
+            const audioMap = {
+                4: ['P4.mp3'], 5: ['p5.mp3'], 6: ['p6.mp3'], 7: ['p7.mp3'],
+                8: ['p8.mp3'], 9: ['p9.mp3'], 10: ['p10.mp3'],
+                11: ['p11a.mp3', 'p11b.mp3', 'p11c.mp3'],
+                12: ['p12.mp3'], 13: ['p13.mp3'], 14: ['p14.mp3'], 15: ['p15.mp3'],
+                16: ['p16.mp3'], 17: ['p17.mp3'],
+                18: ['p18a.mp3', 'p18b.mp3'],
+                19: ['p19.mp3'], 20: ['p20.mp3'], 21: ['p21.mp3'], 22: ['p22.mp3'],
+                23: ['p23a.mp3', 'p23b.mp3', 'p23c.mp3'],
+                24: ['p24&25.mp3'], 25: [], // Shares audio with page 24
+                26: ['p26.mp3'], 27: ['p27.mp3'], 28: ['p28.mp3'], 29: ['p29.mp3'],
+                30: ['p30.mp3'], 31: [] // No audio for page 31
+            };
+
+            // --- 2. BOOK INITIALIZATION ---
+            // Dynamically create pages for the book
+            for (let i = 0; i < totalSpreads; i++) {
+                const startPage = 4 + (i * 2);
+                const endPage = startPage + 1;
+                const spreadImage = `spread${startPage}-${endPage}.jpg`;
+                
+                // Create a div for the double-page spread
+                const pageDiv = $('<div>').css('background-image', `url(${spreadImage})`);
+                
+                // Assign classes to identify left and right sides for CSS positioning
+                if (i === 0) { // First spread is just a single right page initially
+                    pageDiv.addClass('p-right');
+                } else { // Subsequent spreads are full double pages
+                    pageDiv.addClass('p-left p-right');
+                }
+                
+                bookElement.append(pageDiv);
+            }
+            
+            // Initialize Turn.js
+            bookElement.turn({
+                width: 1200,
+                height: 800,
+                elevation: 50,
+                gradients: true,
+                autoCenter: true,
+                display: 'double',
+                acceleration: true,
+                when: {
+                    turned: function(event, page, view) {
+                        console.log(`Turned to view:`, view);
+                        playAudioForView(view);
+                    }
+                }
+            });
+
+            // --- 3. EVENT LISTENERS ---
+            // Navigation buttons
+            $('#prev-page-btn').on('click', function() {
+                bookElement.turn('previous');
+            });
+
+            $('#next-page-btn').on('click', function() {
+                bookElement.turn('next');
+            });
+            
+            // Fullscreen button
+            $('#fullscreen-button').on('click', function() {
+                const bookContainer = document.getElementById('book-container');
+                if (bookContainer.requestFullscreen) {
+                    bookContainer.requestFullscreen();
+                } else if (bookContainer.webkitRequestFullscreen) { /* Safari */
+                    bookContainer.webkitRequestFullscreen();
+                } else if (bookContainer.msRequestFullscreen) { /* IE11 */
+                    bookContainer.msRequestFullscreen();
+                }
+            });
+
+            // Keyboard navigation
+            $(document).on('keydown', function(e) {
+                if (e.key === 'ArrowLeft') {
+                    bookElement.turn('previous');
+                } else if (e.key === 'ArrowRight') {
+                    bookElement.turn('next');
+                }
+            });
+
+            // Audio player 'ended' event to handle playlists
+            currentAudio.addEventListener('ended', function() {
+                currentTrackIndex++;
+                if (currentTrackIndex < audioPlaylist.length) {
+                    playNextInPlaylist();
+                } else {
+                    console.log('Playlist finished.');
+                }
+            });
+            
+            currentAudio.addEventListener('error', function() {
+                console.error('Error playing audio file:', currentAudio.src);
+                // Try to play the next track if the current one fails
+                currentTrackIndex++;
+                if (currentTrackIndex < audioPlaylist.length) {
+                    playNextInPlaylist();
+                }
+            });
+
+            // --- 4. AUDIO HANDLING FUNCTIONS ---
+            function stopCurrentAudio() {
+                if (!currentAudio.paused) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                    console.log('Audio stopped.');
+                }
+                audioPlaylist = [];
+                currentTrackIndex = 0;
+            }
+
+            function playAudioForView(view) {
+                stopCurrentAudio();
+
+                // `view` is an array of visible Turn.js pages.
+                // We need to convert these to our book's actual page numbers.
+                // Turn.js page index starts from 1. Book content starts at page 4.
+                // Turn.js page 1 -> Not used (cover)
+                // Turn.js page 2 -> Our page 4
+                // Turn.js page 3 -> Our page 5
+                // So, Book Page = Turn.js Page + 2
+                // Correction: The project starts on pages 4-5, which will be the first spread in turn.js.
+                // Turn.js pages are 1-based indices for single pages.
+                // Page 1 is the front cover (we are not using it).
+                // Our first visible page is page 4, which corresponds to turn.js internal page 2.
+                // So, Book Page = turn.js page index + 2
+                // However, Turn.js `view` array gives us the page numbers directly.
+                // Let's adjust mapping: turn page 1 = our page 4, turn page 2 = our page 5, etc.
+                // So, Book Page = Turn.js Page Number + 3 is incorrect.
+                // Let's map directly: view[0] is left, view[1] is right.
+                // A single page view on the left is `view[0]`, right is `view[1]`.
+                // A double page view is `[left, right]`
+                
+                // Let's remap view pages to book pages.
+                // The first spread (4-5) corresponds to Turn.js view [2, 3] when opened.
+                // A simpler mapping: The `divs` are 0-indexed.
+                // The book starts at page 4. The first div is pages 4-5.
+                
+                let visibleBookPages = [];
+                if (view[0] !== 0) visibleBookPages.push(view[0] + 2);
+                if (view[1] !== 0) visibleBookPages.push(view[1] + 2);
+                
+                // Final check on mapping from Turn.js view to book pages
+                // View: [2, 3] -> Pages 4 & 5
+                // View: [4, 5] -> Pages 6 & 7
+                // So, Book Page = view page number
+                visibleBookPages = view.filter(p => p > 1); // Ignore cover pages
+                
+                console.log('Visible book pages:', visibleBookPages);
+
+                for (const pageNum of visibleBookPages) {
+                    if (audioMap[pageNum]) {
+                        audioPlaylist.push(...audioMap[pageNum]);
+                    }
+                }
+                
+                // Remove duplicates in case of shared audio files
+                audioPlaylist = [...new Set(audioPlaylist)];
+
+                if (audioPlaylist.length > 0) {
+                    console.log('Starting playlist:', audioPlaylist);
+                    playNextInPlaylist();
+                } else {
+                    console.log('No audio for this view.');
+                }
+            }
+
+            function playNextInPlaylist() {
+                if (currentTrackIndex < audioPlaylist.length) {
+                    const track = audioPlaylist[currentTrackIndex];
+                    console.log(`Playing track ${currentTrackIndex + 1}/${audioPlaylist.length}: ${track}`);
+                    currentAudio.src = track;
+                    currentAudio.play().catch(e => console.error("Audio playback failed:", e));
+                }
+            }
+            
+            // Initial audio for the first page
+            // The `turned` event doesn't fire for the initial view, so we trigger it manually.
+            playAudioForView(bookElement.turn('view'));
+
+        });
+    </script>
+
+</body>
+</html>
