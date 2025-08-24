@@ -8,7 +8,7 @@
     <style>
         /* General Body and Font Styles */
         body {
-            background-color: #add8e6; /* Light blue background */
+            background-color: #add8e6; 
             font-family: "Comic Sans MS", cursive, sans-serif;
             color: #333;
             margin: 0;
@@ -22,13 +22,13 @@
 
         /* Header Styling */
         h1 {
-            color: #ff4500; /* Orange header text */
+            color: #ff4500; 
             text-align: center;
         }
 
         /* Orientation Warning Message */
         #orientation-warning {
-            display: none; /* Hidden by default */
+            display: none; 
             color: red;
             font-size: 24px;
             font-weight: bold;
@@ -36,59 +36,90 @@
             margin-bottom: 20px;
         }
 
-        /* Show warning only in portrait mode */
         @media (orientation: portrait) {
             #orientation-warning { display: block; }
             #app-container { display: none; }
         }
 
-        /* App container to hide everything in portrait */
         #app-container {
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative; 
+            width: 100%;
         }
         
-        /* Book Container */
         #book-container {
-            width: 1200px;
-            height: 800px;
-            margin: 10px auto; 
+            width: 1350px;
+            height: 900px;
+            margin-top: 10px; /* Removed margin auto as it's centered by flexbox */
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             position: relative;
             background-color: white;
             border: 1px solid #ccc;
         }
 
-        /* Spread Styling */
+        #mute-toggle-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10; 
+            font-size: 30px;
+            padding: 5px 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .spread {
             width: 100%;
             height: 100%;
             background-size: cover;
             background-position: center;
-            display: none; /* Hide all spreads by default */
+            display: none; 
+            position: relative; 
         }
         
-        .active-spread {
-            display: block; /* Show only the active spread */
-        }
-
-        /* --- NEW CSS FOR THE COVER --- */
-        /* Style for the front cover to ensure it fits nicely */
+        .active-spread { display: block; }
         .cover {
-            background-size: contain; /* 'contain' fits the whole image without cropping */
+            background-size: contain; 
             background-repeat: no-repeat;
         }
-        /* --- END OF NEW CSS --- */
-
-        /* Controls Container */
-        #controls-container {
-            text-align: center;
-            margin-top: 10px;
+        
+        .start-button {
+            position: absolute;
+            top: 75%; 
+            left: 50%;
+            transform: translateX(-50%); 
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+            background-color: #ff4500; 
+            border: 3px solid white;
+            border-radius: 20px;
+            padding: 15px 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease-in-out;
         }
+        .start-button:hover { transform: translateX(-50%) scale(1.1); }
+        
+        /* --- UPDATED CSS FOR FULLSCREEN BUTTON --- */
+        #fullscreen-button {
+            position: fixed; /* Position relative to the viewport */
+            bottom: 20px;    /* Distance from the bottom */
+            left: 50%;       /* Move its left edge to the center */
+            transform: translateX(-50%); /* Shift it left by half its width to center */
+            z-index: 20;     /* Ensure it's on top of other content */
 
-        /* Navigation and Fullscreen Buttons */
-        .nav-button, #fullscreen-button {
             font-family: "Comic Sans MS", cursive, sans-serif;
             font-size: 24px;
             color: white;
@@ -96,32 +127,49 @@
             border-radius: 10px;
             padding: 10px 20px;
             cursor: pointer;
-            margin: 0 15px;
+            background-color: #ffd700; /* Gold */
             transition: transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
-
-        .nav-button:hover, #fullscreen-button:hover {
-            transform: scale(1.05);
+        #fullscreen-button:hover { 
+            transform: translateX(-50%) scale(1.1); /* Combine transforms */
         }
+        /* --- END OF UPDATE --- */
 
+        .nav-button {
+            position: fixed; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            z-index: 20; 
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            font-size: 48px; 
+            color: white;
+            border: none;
+            border-radius: 50%; 
+            width: 80px;
+            height: 80px;
+            padding-bottom: 5px; 
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        .nav-button:hover { transform: translateY(-50%) scale(1.1); }
         .nav-button:disabled {
-            background-color: #999;
+            background-color: #999 !important; 
             cursor: not-allowed;
-            transform: none;
+            transform: translateY(-50%); 
         }
         
-        #fullscreen-button {
-            background-color: #ffd700; /* Gold */
-            margin-bottom: 10px;
-        }
-
         #prev-page-btn {
-            background-color: #32cd32; /* Lime Green */
+            left: 30px; 
+            background-color: #32cd32; 
         }
 
         #next-page-btn {
-            background-color: #1e90ff; /* Dodger Blue */
+            right: 30px; 
+            background-color: #1e90ff; 
         }
+
     </style>
 </head>
 <body>
@@ -133,16 +181,15 @@
     </div>
 
     <div id="app-container">
+        <!-- The button is still here in the HTML, but its position is now controlled by CSS -->
         <button id="fullscreen-button">Go Fullscreen!</button>
 
         <div id="book-container">
-            <!-- The cover and 14 spreads will be created here by JavaScript -->
+            <button id="mute-toggle-btn">🔊</button>
         </div>
 
-        <div id="controls-container">
-            <button id="prev-page-btn" class="nav-button">Previous Page</button>
-            <button id="next-page-btn" class="nav-button">Next Page</button>
-        </div>
+        <button id="prev-page-btn" class="nav-button"></button> 
+        <button id="next-page-btn" class="nav-button"></button>
     </div>
 
     <script>
@@ -155,6 +202,8 @@
             const prevBtn = document.getElementById('prev-page-btn');
             const nextBtn = document.getElementById('next-page-btn');
             const fullscreenBtn = document.getElementById('fullscreen-button');
+            const muteBtn = document.getElementById('mute-toggle-btn');
+            let isMuted = false;
 
             let currentAudio = new Audio();
             let audioPlaylist = [];
@@ -174,22 +223,20 @@
                 30: ['p30.mp3'], 31: []
             };
 
-            // --- 2. DYNAMICALLY CREATE SPREADS (WITH COVER) ---
-            
-            // --- UPDATED CODE BLOCK: ADDING THE COVER ---
-            // Create and add the front cover first
+            // --- 2. DYNAMICALLY CREATE SPREADS & START BUTTON ---
             const coverDiv = document.createElement('div');
-            coverDiv.className = 'spread cover'; // Use both 'spread' and new 'cover' class
+            coverDiv.className = 'spread cover';
             coverDiv.style.backgroundImage = `url('frontcover.jpg')`;
+            const startButton = document.createElement('button');
+            startButton.className = 'start-button';
+            startButton.textContent = 'Start Adventure!';
+            coverDiv.appendChild(startButton);
             bookContainer.appendChild(coverDiv);
-            // --- END OF UPDATE ---
 
-            // Create the rest of the spreads
             for (let i = 0; i < totalSpreads; i++) {
                 const startPage = 4 + (i * 2);
                 const endPage = startPage + 1;
                 const spreadImage = `spread${startPage}-${endPage}.jpg`;
-                
                 const spreadDiv = document.createElement('div');
                 spreadDiv.className = 'spread';
                 spreadDiv.style.backgroundImage = `url('${spreadImage}')`;
@@ -200,106 +247,88 @@
             // --- 3. CORE FUNCTIONS ---
             function showSpread(index) {
                 spreads.forEach(spread => spread.classList.remove('active-spread'));
-                
-                if (spreads[index]) {
-                    spreads[index].classList.add('active-spread');
-                }
-
+                if (spreads[index]) { spreads[index].classList.add('active-spread'); }
                 prevBtn.disabled = (index === 0);
-                // The total number of items is now 1 (cover) + 14 (spreads) = 15.
-                // This logic correctly disables the next button on the last spread.
                 nextBtn.disabled = (index === spreads.length - 1);
-
                 playAudioForSpread(index);
             }
 
-            // --- UPDATED CODE BLOCK: AUDIO LOGIC ADJUSTMENT ---
             function playAudioForSpread(spreadIndex) {
                 stopCurrentAudio();
-                
-                // If it's the cover (index 0), there's no audio to play.
-                if (spreadIndex === 0) {
-                    console.log('On the cover page, no audio.');
-                    return; // Exit the function
-                }
-
-                // For actual spreads, calculate page numbers based on an adjusted index
-                // since the cover is at index 0.
+                if (spreadIndex === 0) return;
                 const adjustedIndex = spreadIndex - 1;
                 const leftPage = 4 + (adjustedIndex * 2);
                 const rightPage = leftPage + 1;
-                
                 const leftAudio = audioMap[leftPage] || [];
                 const rightAudio = audioMap[rightPage] || [];
-                
                 audioPlaylist = [...new Set([...leftAudio, ...rightAudio])];
-
-                if (audioPlaylist.length > 0) {
-                    console.log(`Playlist for pages ${leftPage}-${rightPage}:`, audioPlaylist);
-                    playNextInPlaylist();
-                } else {
-                    console.log(`No audio for pages ${leftPage}-${rightPage}.`);
-                }
+                if (audioPlaylist.length > 0) { playNextInPlaylist(); }
             }
-            // --- END OF UPDATE ---
             
             function stopCurrentAudio() {
-                if (!currentAudio.paused) {
-                    currentAudio.pause();
-                    currentAudio.currentTime = 0;
-                }
-                audioPlaylist = [];
-                currentTrackIndex = 0;
+                if (!currentAudio.paused) { currentAudio.pause(); currentAudio.currentTime = 0; }
+                audioPlaylist = []; currentTrackIndex = 0;
             }
 
             function playNextInPlaylist() {
                 if (currentTrackIndex < audioPlaylist.length) {
                     const track = audioPlaylist[currentTrackIndex];
-                    console.log(`Playing track ${currentTrackIndex + 1}/${audioPlaylist.length}: ${track}.`);
                     currentAudio.src = track;
+                    currentAudio.muted = isMuted; 
                     currentAudio.play().catch(e => console.error("Audio playback failed:", e));
                 }
             }
 
             // --- 4. EVENT LISTENERS ---
+            startButton.addEventListener('click', () => {
+                fullscreenBtn.style.display = 'block';
+                muteBtn.style.display = 'flex'; 
+                prevBtn.style.display = 'block'; 
+                nextBtn.style.display = 'block'; 
+                currentSpreadIndex = 1;
+                showSpread(currentSpreadIndex);
+            });
+
+            muteBtn.addEventListener('click', () => {
+                isMuted = !isMuted; 
+                currentAudio.muted = isMuted; 
+                muteBtn.textContent = isMuted ? '🔇' : '🔊'; 
+            });
+
             nextBtn.addEventListener('click', () => {
-                if (currentSpreadIndex < spreads.length - 1) {
-                    currentSpreadIndex++;
-                    showSpread(currentSpreadIndex);
-                }
+                if (currentSpreadIndex < spreads.length - 1) { currentSpreadIndex++; showSpread(currentSpreadIndex); }
             });
 
             prevBtn.addEventListener('click', () => {
-                if (currentSpreadIndex > 0) {
-                    currentSpreadIndex--;
-                    showSpread(currentSpreadIndex);
-                }
+                if (currentSpreadIndex > 0) { currentSpreadIndex--; showSpread(currentSpreadIndex); }
             });
+
 
             fullscreenBtn.addEventListener('click', () => {
-                const appContainer = document.getElementById('app-container');
-                if (document.fullscreenElement) {
-                    document.exitFullscreen();
-                } else {
-                    appContainer.requestFullscreen().catch(err => {
+                // Request fullscreen on the whole document for better cross-browser compatibility
+                const elem = document.documentElement;
+                if (!document.fullscreenElement) {
+                    elem.requestFullscreen().catch(err => {
                         alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
                     });
+                } else {
+                    document.exitFullscreen();
                 }
             });
 
-            currentAudio.addEventListener('ended', () => {
-                currentTrackIndex++;
-                playNextInPlaylist();
-            });
-
-            currentAudio.addEventListener('error', () => {
-                console.error('Error playing audio file:', currentAudio.src);
-                currentTrackIndex++;
-                playNextInPlaylist();
-            });
+            currentAudio.addEventListener('ended', () => { currentTrackIndex++; playNextInPlaylist(); });
+            currentAudio.addEventListener('error', () => { console.error('Error playing audio file:', currentAudio.src); currentTrackIndex++; playNextInPlaylist(); });
 
             // --- 5. INITIALIZATION ---
-            showSpread(0); // Start by showing the cover at index 0
+            fullscreenBtn.style.display = 'none';
+            muteBtn.style.display = 'none'; 
+            prevBtn.style.display = 'none'; 
+            nextBtn.style.display = 'none'; 
+
+            prevBtn.textContent = '◀'; 
+            nextBtn.textContent = '▶'; 
+
+            showSpread(0); 
         });
     </script>
 
