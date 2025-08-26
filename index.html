@@ -106,6 +106,30 @@
         }
         .start-button:hover { transform: translateX(-50%) scale(1.1); }
         
+        /* --- NEW STYLE FOR ACTIVITY BUTTON --- */
+        .activity-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+            background-color: #32cd32; /* Green color */
+            border: 3px solid white;
+            border-radius: 20px;
+            padding: 20px 40px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease-in-out;
+            z-index: 5;
+        }
+        .activity-button:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        /* --- END OF NEW STYLE --- */
+
         #fullscreen-button {
             position: fixed;
             bottom: 20px;
@@ -217,9 +241,7 @@
             coverDiv.style.backgroundImage = `url('frontcover.jpg')`;
             const startButton = document.createElement('button');
             startButton.className = 'start-button';
-            // --- UPDATED TEXT FOR START BUTTON ---
             startButton.textContent = 'Start Reading';
-            // --- END OF UPDATE ---
             coverDiv.appendChild(startButton);
             bookContainer.appendChild(coverDiv);
 
@@ -233,6 +255,18 @@
                 bookContainer.appendChild(spreadDiv);
             }
             const spreads = document.querySelectorAll('.spread');
+
+            // --- NEW: ADD ACTIVITY BUTTON TO THE LAST PAGE ---
+            const lastSpread = spreads[spreads.length - 1];
+            const activityButton = document.createElement('button');
+            activityButton.className = 'activity-button';
+            activityButton.textContent = 'Click for Activities';
+            activityButton.addEventListener('click', () => {
+                window.location.href = 'activity.html';
+            });
+            lastSpread.appendChild(activityButton);
+            // --- END OF NEW CODE ---
+
 
             // --- 3. CORE FUNCTIONS ---
             function showSpread(index) {
