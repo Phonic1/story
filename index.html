@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jack Changes the Game - Cyber Safe Story Adventure</title>
+    
+    <style>
+        /* General Body and Font Styles */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #1d1d1f;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; 
+            min-height: 100vh;
+        }
+
+        /* Orientation Warning Message */
+        #orientation-warning {
+            display: none; 
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            margin: 20px;
+            background: rgba(0,0,0,0.7);
+            padding: 30px;
+            border-radius: 20px;
+        }
+
+        @media (orientation: portrait) {
+            #orientation-warning { display: block; }
+            #app-container { display: none; }
+        }
+
+        #app-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative; 
+            width: 100%;
+            padding-top: 20px;
+        }
+        
+        /* Landing Page Styles */
+        #landing-page {
+            display: flex;
+            width: 1080px;
+            height: 720px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        #landing-page.hidden {
+            display: none;
+        }
+
+        .landing-sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #f5f5f7 0%, #e8e8ed 100%);
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border-right: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .sidebar-button {
+            background: white;
+            border: none;
+            border-radius: 12px;
+            padding: 20px;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+        }
+
+        .sidebar-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .sidebar-button:active {
+            transform: translateY(0);
+        }
+
+        .sidebar-button-icon {
+            font-size: 28px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-button-text {
+            flex: 1;
+        }
+
+        .sidebar-button-subtitle {
+            font-size: 12px;
+            font-weight: 400;
+            color: #86868b;
+            margin-top: 4px;
+        }
+
+        .landing-main {
+            flex: 1;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            position: relative;
+        }
+
+        .landing-title {
+            font-size: 52px;
+            font-weight: 700;
+            color: #9c27b0;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            letter-spacing: -0.5px;
+        }
+
+        .landing-subtitle {
+            font-size: 20px;
+            font-weight: 500;
+            color: #7b1fa2;
+            text-align: center;
+            margin-bottom: 50px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .start-reading-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 50px;
+            padding: 18px 50px;
+            font-family: inherit;
+            font-size: 22px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .start-reading-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+        }
+
+        .start-reading-btn:active {
+            transform: scale(0.98);
+        }
+
+        .info-banner {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-top: auto;
+            font-size: 13px;
+            color: #1d1d1f;
+            line-height: 1.5;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .info-banner strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #1d1d1f;
+        }
+
+        /* Book Container Styles */
+        #book-container {
+            width: 1080px;
+            height: 720px;
+            margin-top: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            background-color: white;
+            border-radius: 20px;
+            overflow: hidden;
+            display: none;
+        }
+
+        #book-container.active {
+            display: block;
+        }
+
+        #mute-toggle-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10; 
+            font-size: 24px;
+            padding: 0;
+            background: rgba(255,255,255,0.95);
+            color: #1d1d1f;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #mute-toggle-btn:hover {
+            background: white;
+            transform: scale(1.05);
+        }
+
+        .spread {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            display: none; 
+            position: relative; 
+        }
+        
+        .active-spread { display: block; }
+        .cover {
+            background-size: contain; 
+            background-repeat: no-repeat;
+        }
+        
+        .activity-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: inherit;
+            font-size: 28px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #34c759 0%, #30d158 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 20px 45px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(52, 199, 89, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5;
+        }
+        .activity-button:hover {
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 12px 32px rgba(52, 199, 89, 0.5);
+        }
+
+        /* Shared Button Styles */
+        #fullscreen-button {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 24px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.95);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            backdrop-filter: blur(20px);
+        }
+
+        #fullscreen-button:hover { 
+            transform: translateX(-50%) scale(1.05);
+            background: white;
+        }
+
+        .nav-button {
+            position: fixed; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            z-index: 20; 
+            font-family: inherit;
+            font-size: 32px; 
+            color: #1d1d1f;
+            border: none;
+            border-radius: 50%; 
+            width: 60px;
+            height: 60px;
+            padding: 0;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+        }
+        .nav-button:hover { 
+            transform: translateY(-50%) scale(1.1);
+            background: white;
+        }
+        .nav-button:disabled {
+            background: rgba(255,255,255,0.5);
+            color: #86868b;
+            cursor: not-allowed;
+            transform: translateY(-50%); 
+        }
+        
+        #prev-page-btn {
+            left: 30px; 
+        }
+
+        #next-page-btn {
+            right: 30px; 
+        }
+
+    </style>
+</head>
+<body>
+    
+    <div id="orientation-warning">
+        Please rotate your device to landscape mode for the best experience!
+    </div>
+
+    <div id="app-container">
+        <!-- Landing Page -->
+        <div id="landing-page">
+            <div class="landing-sidebar">
+                <div class="sidebar-button" id="activities-btn">
+                    <div class="sidebar-button-icon">📝</div>
+                    <div class="sidebar-button-text">
+                        <div>View Activities</div>
+                        <div class="sidebar-button-subtitle">Interactive exercises</div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-button" id="chat-board-btn">
+                    <div class="sidebar-button-icon">💬</div>
+                    <div class="sidebar-button-text">
+                        <div>Chat Board</div>
+                        <div class="sidebar-button-subtitle">AAC communication tool</div>
+                    </div>
+                </div>
+
+                <div class="info-banner">
+                    <strong>For Teachers:</strong>
+                    As of Dec 10, 2025, Australian students under 16 are restricted from major social media platforms. Use these resources to discuss cyber safety.
+                </div>
+            </div>
+
+            <div class="landing-main" style="background-image: url('frontcover.jpg');">
+                <h1 class="landing-title">Jack Changes the Game</h1>
+                <p class="landing-subtitle">An Interactive Adventure for Students</p>
+                <button class="start-reading-btn" id="start-btn">Begin Reading →</button>
+            </div>
+        </div>
+
+        <!-- Book Container -->
+        <div id="book-container">
+            <button id="mute-toggle-btn">🔊</button>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <button id="prev-page-btn" class="nav-button">◀</button> 
+        <button id="next-page-btn" class="nav-button">▶</button>
+        
+        <!-- Fullscreen Button -->
+        <button id="fullscreen-button">Toggle Fullscreen</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- 1. CONFIGURATION & SETUP ---
+            const totalSpreads = 14;
+            let currentSpreadIndex = 0;
+
+            const landingPage = document.getElementById('landing-page');
+            const bookContainer = document.getElementById('book-container');
+            const startBtn = document.getElementById('start-btn');
+            const activitiesBtn = document.getElementById('activities-btn');
+            const chatBoardBtn = document.getElementById('chat-board-btn');
+            const prevBtn = document.getElementById('prev-page-btn');
+            const nextBtn = document.getElementById('next-page-btn');
+            const fullscreenBtn = document.getElementById('fullscreen-button');
+            const muteBtn = document.getElementById('mute-toggle-btn');
+            let isMuted = false;
+
+            let currentAudio = new Audio();
+            let audioPlaylist = [];
+            let currentTrackIndex = 0;
+
+            const audioMap = {
+                4: ['p4.mp3'], 5: ['p5.mp3'], 6: ['p6.mp3'], 7: ['p7.mp3'],
+                8: ['p8.mp3'], 9: ['p9.mp3'], 10: ['p10.mp3'],
+                11: ['p11a.mp3', 'p11b.mp3', 'p11c.mp3'],
+                12: ['p12.mp3'], 13: ['p13.mp3'], 14: ['p14.mp3'], 15: ['p15.mp3'],
+                16: ['p16.mp3'], 17: ['p17.mp3'],
+                18: ['p18a.mp3', 'p18b.mp3'],
+                19: ['p19.mp3'], 20: ['p20.mp3'], 21: ['p21.mp3'], 22: ['p22.mp3'],
+                23: ['p23a.mp3', 'p23b.mp3', 'p23c.mp3'],
+                24: ['p24&25.mp3'], 25: [], 
+                26: ['p26.mp3'], 27: ['p27.mp3'], 28: ['p28.mp3'], 29: ['p29.mp3'],
+                30: ['p30.mp3'], 31: []
+            };
+
+            // --- 2. DYNAMICALLY CREATE SPREADS ---
+            for (let i = 0; i < totalSpreads; i++) {
+                const startPage = 4 + (i * 2);
+                const endPage = startPage + 1;
+                const spreadImage = `spread${startPage}-${endPage}.jpg`;
+                const spreadDiv = document.createElement('div');
+                spreadDiv.className = 'spread';
+                spreadDiv.style.backgroundImage = `url('${spreadImage}')`;
+                bookContainer.appendChild(spreadDiv);
+            }
+            const spreads = document.querySelectorAll('.spread');
+
+            // Add activity button to the last page
+            const lastSpread = spreads[spreads.length - 1];
+            const activityButton = document.createElement('button');
+            activityButton.className = 'activity-button';
+            activityButton.textContent = 'Start Activities →';
+            activityButton.addEventListener('click', () => {
+                window.location.href = 'activity.html';
+            });
+            lastSpread.appendChild(activityButton);
+
+            // --- 3. CORE FUNCTIONS ---
+            function showLanding() {
+                landingPage.classList.remove('hidden');
+                bookContainer.classList.remove('active');
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+                fullscreenBtn.style.display = 'none';
+            }
+
+            function showBook() {
+                landingPage.classList.add('hidden');
+                bookContainer.classList.add('active');
+                prevBtn.style.display = 'block';
+                nextBtn.style.display = 'block';
+                fullscreenBtn.style.display = 'block';
+            }
+
+            function showSpread(index) {
+                spreads.forEach(spread => spread.classList.remove('active-spread'));
+                if (spreads[index]) { spreads[index].classList.add('active-spread'); }
+                prevBtn.disabled = (index === 0);
+                nextBtn.disabled = (index === spreads.length - 1);
+                playAudioForSpread(index);
+            }
+
+            function playAudioForSpread(spreadIndex) {
+                stopCurrentAudio();
+                const adjustedIndex = spreadIndex;
+                const leftPage = 4 + (adjustedIndex * 2);
+                const rightPage = leftPage + 1;
+                const leftAudio = audioMap[leftPage] || [];
+                const rightAudio = audioMap[rightPage] || [];
+                audioPlaylist = [...new Set([...leftAudio, ...rightAudio])];
+                if (audioPlaylist.length > 0) { playNextInPlaylist(); }
+            }
+            
+            function stopCurrentAudio() {
+                if (!currentAudio.paused) { currentAudio.pause(); currentAudio.currentTime = 0; }
+                audioPlaylist = []; currentTrackIndex = 0;
+            }
+
+            function playNextInPlaylist() {
+                if (currentTrackIndex < audioPlaylist.length) {
+                    const track = audioPlaylist[currentTrackIndex];
+                    currentAudio.src = track;
+                    currentAudio.muted = isMuted; 
+                    currentAudio.play().catch(e => console.error("Audio playback failed:", e));
+                }
+            }
+
+            function startReading() {
+                currentSpreadIndex = 0;
+                showBook();
+                showSpread(currentSpreadIndex);
+            }
+
+            // --- 4. EVENT LISTENERS ---
+            startBtn.addEventListener('click', startReading);
+
+            activitiesBtn.addEventListener('click', () => {
+                window.location.href = 'activity.html';
+            });
+
+            chatBoardBtn.addEventListener('click', () => {
+                window.location.href = 'chatboard.html';
+            });
+
+            muteBtn.addEventListener('click', () => {
+                isMuted = !isMuted; 
+                currentAudio.muted = isMuted; 
+                muteBtn.textContent = isMuted ? '🔇' : '🔊'; 
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (currentSpreadIndex < spreads.length - 1) { 
+                    currentSpreadIndex++; 
+                    showSpread(currentSpreadIndex); 
+                }
+            });
+
+            prevBtn.addEventListener('click', () => {
+                if (currentSpreadIndex > 0) { 
+                    currentSpreadIndex--; 
+                    showSpread(currentSpreadIndex); 
+                }
+            });
+
+            fullscreenBtn.addEventListener('click', () => {
+                const elem = document.documentElement;
+                if (!document.fullscreenElement) {
+                    elem.requestFullscreen().catch(err => {
+                        alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                    });
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+
+            currentAudio.addEventListener('ended', () => { 
+                currentTrackIndex++; 
+                playNextInPlaylist(); 
+            });
+            
+            currentAudio.addEventListener('error', () => { 
+                console.error('Error playing audio file:', currentAudio.src); 
+                currentTrackIndex++; 
+                playNextInPlaylist(); 
+            });
+
+            // --- 5. INITIALIZATION ---
+            showLanding();
+        });
+    </script>
+
+</body>
+</html>
